@@ -13,17 +13,16 @@ public class ConsumoApi {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endereco))
                 .build();
-        HttpResponse<String> response = null;
-        try {
-            response = client
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
-        String json = response.body();
-        return json;
+        try {
+            return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+        } catch (IOException e) {
+            throw new ErroConsultaApiException("Falha na comunicação com a API.", e);
+        } catch (InterruptedException e) {
+            // SOLUÇÃO: Avisa a Thread atual que ela foi interrompida
+            Thread.currentThread().interrupt();
+            // Agora sim, lança a exceção
+            throw new ErroConsultaApiException("A operação foi interrompida inesperadamente.", e);
+        }
     }
 }
